@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context=".MainActivity"
+    >
+
+    <LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content">
+	    <Button
+	        android:id="@+id/executeGPButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Execute GP" />
+	    <Button
+            android:id="@+id/clearMapButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear map" />
+
+	    <ProgressBar
+	        android:id="@+id/progressBar1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible"/>
+
+	</LinearLayout>
+	
+    <com.esri.android.map.MapView 
+         xmlns:android="http://schemas.android.com/apk/res/android" 
+         android:id="@+id/map" 
+         android:layout_width="fill_parent" 
+         android:layout_height="fill_parent"
+         initExtent="2761000 8427500 2789200 8449900"/>
+</LinearLayout>
