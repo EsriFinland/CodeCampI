@@ -1,0 +1,146 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="LodgeViewerV1.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:esri="clr-namespace:ESRI.ArcGIS.Client;assembly=ESRI.ArcGIS.Client"
+    xmlns:esriToolkit="clr-namespace:ESRI.ArcGIS.Client.Toolkit;assembly=ESRI.ArcGIS.Client.Toolkit"
+    xmlns:esriPrimitives="clr-namespace:ESRI.ArcGIS.Client.Toolkit.Primitives;assembly=ESRI.ArcGIS.Client.Toolkit"
+    xmlns:dataSources="clr-namespace:ESRI.ArcGIS.Client.Toolkit.DataSources;assembly=ESRI.ArcGIS.Client.Toolkit.DataSources"
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    shell:SystemTray.IsVisible="True">
+
+    <phone:PhoneApplicationPage.Resources>
+        <!-- DataTemplate for Lodge popup -->
+        <DataTemplate x:Key="LodgeInfoWindowTemplate">
+            <!-- 
+                DataContext here is a Graphic 
+                see more : http://resources.arcgis.com/en/help/windows-phone-sdk/apiref/ESRI.ArcGIS.Client~ESRI.ArcGIS.Client.Graphic.html
+            -->
+            <StackPanel>
+                <TextBlock Text="{Binding Attributes[Location]}" Foreground="white" FontSize="18" Margin="1"/>
+                <TextBlock Text="{Binding Attributes[Price]}" Foreground="white" FontSize="18" Margin="1"/>
+                <TextBlock Text="{Binding Attributes[Size]}" Foreground="white" FontSize="18" Margin="1"/>
+                <TextBlock Text="{Binding Attributes[Room_confi]}" Foreground="white" FontSize="18" Margin="1"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Geometry Service used to reproject graphics, used in GpsLayer in this case -->
+        <!--<esriTasks:GeometryService x:Key="geomService" Url="http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer" />-->
+    </phone:PhoneApplicationPage.Resources>
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <!--ContentPanel - place additional content here-->
+        <Grid x:Name="ContentPanel" Grid.Row="1">
+            <esri:Map x:Name="Map" MapGesture="Map_OnMapGesture">
+                <!-- BaseMap - Using Esri's basemap from AGOL that uses WGS84 geocoordinate system (102100) and World Mercator projection (3857) -->
+                <esri:ArcGISTiledMapServiceLayer ID="Taustakartta" 
+                                                 Url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer" />
+
+                <!-- V2 : BaseMap - Using MML's Etrs-tm35fin projection (3067) based basemap -->
+                <!--<esri:ArcGISTiledMapServiceLayer ID="Taustakartta" 
+                                                 Url="http://50.16.221.120/arcgis/rest/services/Taustakartta/MapServer"/>-->
+
+                <!-- Imagery -->
+                <esri:ArcGISTiledMapServiceLayer ID="Ilmakuvat" 
+                                                 Url="http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"
+                                                 Visible="False"/>
+
+                <!-- Operational layers -->
+                <!-- V2 : Tiled layer is not reprojected on the fly so after changing basemap, is not visible. -->
+                <esri:ArcGISTiledMapServiceLayer ID="Hyvätuloiset" 
+                                                 Url="http://tiles.arcgis.com/tiles/4PuGhqdWG1FwH2Yk/arcgis/rest/services/Hyv%C3%A4tuloiset/MapServer" 
+                                                 Visible="False"/>
+                <!-- V2 : Dynamic layer is reprojected on the fly so after changing basemap it is still visible. -->
+                <esri:ArcGISDynamicMapServiceLayer ID="Etäisyys metrolle/junalle" 
+                                                   Url="http://174.129.236.68/ArcGIS/rest/services/Asuinaluetulokset/MapServer"
+                                                   VisibleLayers="44" 
+                                                   Visible="False"/>
+                <esri:ArcGISDynamicMapServiceLayer ID="Indeksi (halpa = hyvä)" 
+                                                   Url="http://174.129.236.68/ArcGIS/rest/services/Asuinaluetulokset/MapServer"
+                                                   VisibleLayers="33"
+                                                   Visible="False"/>
+                <esri:ArcGISDynamicMapServiceLayer ID="Indeksi (kallis = hyvä)" 
+                                                   Url="http://174.129.236.68/ArcGIS/rest/services/Asuinaluetulokset/MapServer"
+                                                   VisibleLayers="35"
+                                                   Visible="False"/>
+
+                <!-- Temporary content -->
+                <!-- V2 : Uses features based on WGS84 (102100) - Server reprojectes on the fly when map's spatial reference differs -->
+                <!-- 
+                     To get application perform better, this should be done by using Dynamic Layer approach so we could only render 
+                     1 image instead of 300 at time. Is done like this to keep examples about the same.            
+                -->
+                <esri:FeatureLayer ID="Asunnot"
+                                   Url="http://services.arcgis.com/4PuGhqdWG1FwH2Yk/ArcGIS/rest/services/CodeCampVuokrat/FeatureServer/0"
+                                   OutFields="Location, Price, Size, Room_confi" 
+                                   Mode="OnDemand"
+                                   Initialized="Layer_OnInitialized"/>
+
+                <!-- Users Location -->
+                <!-- V2 : To Reproject GPS location from WGS84 to Etrs35Fin, add projection service to the GpsLayer to get functionality OOTB.
+                     <dataSources:GpsLayer ID="Oma sijainti" IsEnabled="True" ProjectionService="{StaticResource geomService}"/>
+                -->
+                <dataSources:GpsLayer ID="Oma sijainti" IsEnabled="True"></dataSources:GpsLayer>
+            </esri:Map>
+
+            <!-- Popup for Lodges -->
+            <esriToolkit:InfoWindow 
+                         x:Name="LodgingInfoWindow"
+                         Padding="2"
+                         CornerRadius="20" 
+                         Background="#F43E1E"
+                         Map="{Binding ElementName=Map}" 
+                         ContentTemplate="{StaticResource LodgeInfoWindowTemplate}" />
+
+            <!-- Table of Content -->
+            <esriPrimitives:ChildPage x:Name="ToC" IsOpen="False">
+                <Grid Margin="15,25,10,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Tasojen hallinta" Margin="12, 10, 0, 10"></TextBlock>
+                    <ListBox ItemsSource="{Binding ElementName=Map, Path=Layers}" Grid.Row="1">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding Visible, Mode=TwoWay}" Content="{Binding ID, Mode=OneWay}" MaxWidth="300"/>
+                                    <Slider Width="100" VerticalContentAlignment="Center"
+                                            Minimum="0" Maximum="1" 
+                                            Value="{Binding Path=Opacity, Mode=TwoWay}"></Slider>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </esriPrimitives:ChildPage>
+
+            <!-- Legend -->
+            <esriPrimitives:ChildPage x:Name="Legend" IsOpen="False">
+                <ScrollViewer>
+                    <esriToolkit:Legend Map="{Binding ElementName=Map}" 
+                         LayerIDs="Hyvätuloiset, Etäisyys metrolle/junalle, Indeksi (halpa = hyvä), Indeksi (kallis = hyvä)"
+                         LayerItemsMode="Flat" />
+                </ScrollViewer>
+            </esriPrimitives:ChildPage>
+        </Grid>
+    </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton IconUri="/Images/ApplicationBar.List.png" Text="Legenda" Click="OpenLegend"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/ApplicationBar.Settings.png" Text="sisältö" Click="ApplicationBarIconButton_OnClick"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/ApplicationBar.Locate.png" Text="Kohdista" Click="PanToGPS"/>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+</phone:PhoneApplicationPage>

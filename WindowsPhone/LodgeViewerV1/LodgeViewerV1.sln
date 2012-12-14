@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LodgeViewerV1", "LodgeViewerV1\LodgeViewerV1.csproj", "{84CBB01E-4222-4BF8-AE41-ABF389B157EE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84CBB01E-4222-4BF8-AE41-ABF389B157EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84CBB01E-4222-4BF8-AE41-ABF389B157EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84CBB01E-4222-4BF8-AE41-ABF389B157EE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{84CBB01E-4222-4BF8-AE41-ABF389B157EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84CBB01E-4222-4BF8-AE41-ABF389B157EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84CBB01E-4222-4BF8-AE41-ABF389B157EE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
