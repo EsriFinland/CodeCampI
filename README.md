@@ -10,7 +10,8 @@ provided "As-Is".
 The stucture is diveded into 3 parts : Windows Phone examples, Android examples and presentations. 
 In the Windows Phone folder you will find 2 versions of the same LodgeViewer application
 
-  V1 = uses basemap from the ArcGIS Online with same spatial references
-  V2 = uses Finnish basemap with different spatial reference compared to the features used
+    V1 = uses basemap from the ArcGIS Online with same spatial references  
+
+    V2 = uses Finnish basemap with different spatial reference compared to the features used
 
 If you questions about the code / CodeCampI please contact : antti.kajanus@esri.fi or mika.makela@esri.fi
