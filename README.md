@@ -14,4 +14,4 @@ In the Windows Phone folder you will find 2 versions of the same LodgeViewer app
 
     V2 = uses Finnish basemap with different spatial reference compared to the features used
 
-If you questions about the code / CodeCampI please contact : antti.kajanus@esri.fi or mika.makela@esri.fi
+If you questions about the code / CodeCampI please contact : info@esri.fi
